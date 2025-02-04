@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>jQuery Terminal</title>
+    <meta name="robots" content="noindex"/>
+    <meta name="googlebot" content="noindex"/>
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"/>
+    <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-polyfills/keyboard.js"></script>
+    <script>
+     function query() {
+         var result = {};
+         var search = document.location.search;
+         if (search) {
+             search.substring(1).split('&').map(function(pair) {
+                 pair = pair.split('=');
+                 var key = decodeURIComponent(pair[0]);
+                 var value = decodeURIComponent(pair.slice(1).join('='));
+                 result[key] = value;
+             });
+         }
+         return result;
+     }
+     $.getStyle = function(url, callback) {
+         var link = $('<link href="' + url + '" rel="stylesheet"/>');
+         if (callback) {
+             link.on('load', callback);
+         }
+         var head = $('head');
+         if (head.length) {
+             link.appendTo(head);
+         }
+     };
+     var args = query();
+     var file = args.file || 'browser_test_files/base.js';
+     var files = [
+         '/js/jquery.terminal.min.js',
+         '/js/less.js',
+         '/css/jquery.terminal.min.css',
+         //'/js/prism.js',
+         '/js/unix_formatting.js'
+     ];
+     var base = 'https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@';
+     var ver = args.ver || 'master';
+     files = files.map(function(file) {
+         return base + ver + file;
+     });
+     if (file.match(/^browser_test_files/)) {
+         files.push(file);
+     }
+     (function loop() {
+         var url = files.shift();
+         if (url) {
+             if (url.match(/\.js$/)) {
+                 $.getScript(url, loop);
+             } else {
+                 $.getStyle(url, loop);
+             }
+         }
+     })();
+    </script>
+    <style>
+     html, body {
+         height: 100%;
+         margin: 0;
+     }
+     body.terminal {
+         min-height: 100%;
+     }
+     body:not(.terminal) .terminal {
+         height: 100%;
+     }
+    </style>
+  </head>
+  <body>
+  </body>
+</html>
